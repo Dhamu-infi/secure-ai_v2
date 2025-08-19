@@ -1,0 +1,147 @@
+1. Purpose
+
+Trigger a new security scan for a project.
+
+Accept either a Git repository URL or uploaded source code (ZIP/TAR).
+
+Support language selection (PHP or Python) to optimize scanning.
+
+Display directory structure of the repository and allow users to unselect directories that should not be scanned.
+
+Track scan progress, scan history, and fix readiness.
+
+2. Scan Form
+2.1 Inputs
+
+Repository URL (text input)
+
+If provided, show Git credentials fields:
+
+Username
+
+Password / Personal Access Token
+
+Dropdown to select code language: PHP or Python.
+
+Upload Source Code (file input, optional)
+
+Accept .zip or .tar.
+
+Disable Git URL fields if file upload is used.
+
+Scan Type (dropdown)
+
+Options: SAST, DAST.
+
+Directory Selection
+
+After entering repo URL or upload, show directory tree.
+
+Users can check/uncheck directories to include/exclude them from the scan.
+
+Exclusions (optional text input)
+
+Additional patterns not allowed for scanning.
+
+2.2 Buttons
+
+Start Scan
+
+Cancel Scan (if scan is running)
+
+2.3 Validations
+
+At least one of Git URL or file upload must be provided.
+
+File upload must be .zip or .tar.
+
+If Git URL is chosen, username and password/token must be provided.
+
+Ensure at least one directory is selected for scanning.
+
+3. Directory Tree Display
+
+Show file/folder hierarchy of the selected repo or uploaded code.
+
+Allow users to toggle checkboxes to include/exclude directories.
+
+Dynamically update the Exclusions input based on unchecked directories.
+
+4. API Integration
+
+Fetch Directory Structure
+
+POST /projects/:id/scan/prepare
+
+Request Body Example for Git:
+
+{
+  "repo_url": "https://github.com/user/repo.git",
+  "git_username": "user",
+  "git_password": "token",
+  "language": "PHP"
+}
+
+
+Response Example:
+
+{
+  "directories": [
+    "src/",
+    "tests/",
+    "docs/",
+    "config/"
+  ]
+}
+
+
+Start Scan
+
+POST /projects/:id/scan
+
+Request Body Example:
+
+{
+  "scan_type": "SAST",
+  "selected_directories": ["src/", "config/"],
+  "exclusions": "tests/*,docs/*",
+  "repo_url": "https://github.com/user/repo.git",
+  "git_username": "user",
+  "git_password": "token",
+  "language": "PHP"
+}
+
+
+Response Example:
+
+{
+  "scan_id": 12,
+  "status": "SCANNING",
+  "start_datetime": "2025-08-17T16:00:00"
+}
+
+
+Cancel Scan
+
+POST /projects/:id/scans/:scan_id/cancel
+
+Response Example:
+
+{
+  "scan_id": 12,
+  "status": "CANCELLED"
+}
+
+5. UI/UX Guidelines
+
+Use TailwindCSS for clean, responsive layout.
+
+Show Git fields dynamically if Git URL is entered.
+
+Display directory tree with checkboxes.
+
+Disable Start Scan until all required fields are valid.
+
+Include progress bar for scanning.
+
+Display status badges (SCANNING, FIX_GENERATION, FIX_READY, etc.).
